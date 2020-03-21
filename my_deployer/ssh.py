@@ -127,7 +127,7 @@ class Ssh_utils:
 
         return result_flag
 
-    def upload_file(self, folder_name, list_files):
+    def build_service(self, folder_name, list_files):
         "This method uploads the file to remote server"
         result_flag = True
         try:
@@ -141,7 +141,7 @@ class Ssh_utils:
                 if cmd.stderr is True:
                     print(cmd.stderr)
                 else:
-                    print(pwd[:-1])
+                    print("Working dir is {}".format(pwd[:-1]))
 
                 print(("creating {} folder in remote...").format(folder_name))
 
@@ -155,6 +155,20 @@ class Ssh_utils:
                         file_path, folder_name))
                     ftp_client.put(pwd[:-1]+file_path,
                                    "/root"+file_path)
+                for command in config.COMMANDS_BUILD_CHECKER:
+                    print("Executing command --> {}".format(command))
+                    stdin, stdout, stderr = self.client.exec_command(
+                        command)
+                    self.ssh_output = stdout.read()
+                    self.ssh_error = stderr.read()
+                    if self.ssh_error:
+                        print("Problem occurred while running command:",
+                              command, " The error is ", self.ssh_error)
+                        result_flag = False
+                    else:
+                        print("bash: ", self.ssh_output, "\n"
+                              "Command execution completed successfully",
+                              command)
 
                 ftp_client.close()
                 self.client.close()
@@ -169,7 +183,3 @@ class Ssh_utils:
             self.client.close()
 
         return result_flag
-
-
-test = Ssh_utils()
-test.upload_file("checker", config.CHECKER_LIST_FILES)

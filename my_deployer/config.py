@@ -2,7 +2,7 @@
 __author__ = "romana_m"
 
 
-HOST = "192.168.0.21"
+HOST = "192.168.178.42"
 USERNAME = "root"
 PASSWORD = "Manuel1982"
 TIMEOUT = 10
@@ -24,4 +24,8 @@ COMMANDS = ["apt-get update",
             "apt-get update",
             "apt-get install -y docker-ce docker-ce-cli containerd.io"
             ]
-CHECKER_LIST_FILES = ["/checker/app.py", "/checker/run.py"]
+CHECKER_LIST_FILES = ["/checker/app.py",
+                      "/checker/Dockerfile"]
+
+COMMANDS_BUILD_CHECKER = [
+    "cd /root/checker/ && docker build -t checker:flask ."]

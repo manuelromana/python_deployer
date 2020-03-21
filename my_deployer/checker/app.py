@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
+def get_container():
     cmd = subprocess.run(
         ["docker", "container", "ls"], capture_output=True)
     cmd_output = cmd.stdout
@@ -17,6 +17,8 @@ def hello_world():
         dict_container[i] = str(x)
         i = i+1
     if cmd_output:
+        print(dict_container)
         return dict_container
     else:
+        print("error")
         return cmd_stderr
