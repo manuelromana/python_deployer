@@ -18,6 +18,10 @@ parser_config = subparsers.add_parser('config', help='launch script on remote')
 parser_config.set_defaults(func=config)
 
 # parse the args and call whatever function was selected
-# can add default argument here or nothing
-args = parser.parse_args()
-args.func(args)
+# catch error if no command pass to script
+
+try:
+    args = parser.parse_args()
+    args.func(args)
+except Exception as e:
+    parser.parse_args(['--help'])

@@ -1,6 +1,7 @@
 import paramiko
 import config
 import socket
+import subprocess
 
 
 class Ssh_utils:
@@ -125,3 +126,50 @@ class Ssh_utils:
             result_flag = False
 
         return result_flag
+
+    def upload_file(self, folder_name, list_files):
+        "This method uploads the file to remote server"
+        result_flag = True
+        try:
+            if self.connect():
+                ftp_client = self.client.open_sftp()
+
+                print("getting local path with pwd")
+                cmd = subprocess.run(
+                    ["pwd"], capture_output=True)
+                pwd = str(cmd.stdout, "utf-8")
+                if cmd.stderr is True:
+                    print(cmd.stderr)
+                else:
+                    print(pwd[:-1])
+
+                print(("creating {} folder in remote...").format(folder_name))
+
+                stdin, stdout, stderr = self.client.exec_command(
+                    "cd && mkdir {}".format(folder_name), timeout=10)
+                self.ssh_output = stdout.read()
+                self.ssh_error = stderr.read()
+
+                for file_path in list_files:
+                    print("sftp coping {} in remote {}".format(
+                        file_path, folder_name))
+                    ftp_client.put(pwd[:-1]+file_path,
+                                   "/root"+file_path)
+
+                ftp_client.close()
+                self.client.close()
+            else:
+                print("Could not establish SSH connection")
+                result_flag = False
+        except Exception as e:
+            print('\nUnable to upload the file to the remote server')
+            print('PYTHON SAYS:', e)
+            result_flag = False
+            ftp_client.close()
+            self.client.close()
+
+        return result_flag
+
+
+test = Ssh_utils()
+test.upload_file("checker", config.CHECKER_LIST_FILES)
